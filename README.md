@@ -1,6 +1,4 @@
-# cpu_check
-
-`NOTE:` BETA code, work-in-progress.
+# CPU Check
 
 CPU torture test designed for SMP systems, attempting to find CPU hardware faults, focusing primarily on the x86_64 architecture.
 
@@ -29,8 +27,8 @@ Designed to run under Unix/Linux OS.
 ## Building
 
 ```
-sh$ git clone git@github.com:stixpjr/cpu_check.git
-sh$ cd cpu_check
+sh$ git clone git@github.com:google/cpu-check.git
+sh$ cd cpu-check
 sh$ mkdir build
 sh$ cd build
 sh$ cmake ..
@@ -51,7 +49,6 @@ to cmake via, eg:
 ## TODO:
 
 * Use git submodules for:
-  * farmhash: https://github.com/google/farmhash
   * highwayhash: https://github.com/google/highwayhash
   * crc32c: https://github.com/google/crc32c
   * cityhash: https://github.com/google/cityhash
