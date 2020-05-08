@@ -1,0 +1,8 @@
+#define cpu_check_VERSION "@cpu_check_VERSION@"
+
+// Begin Google local change
+#cmakedefine IN_GOOGLE3
+#cmakedefine USE_BORINGSSL
+#cmakedefine VENDORS_AMD_PATH
+#cmakedefine VENDORS_INTEL_PATH
+// End Google local change
