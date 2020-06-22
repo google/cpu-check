@@ -1,3 +1,6 @@
 [submodule "third_party/farmhash"]
 	path = third_party/farmhash
 	url = https://github.com/google/farmhash
+[submodule "farmhash"]
+	path = farmhash
+	url = https://github.com/google/farmhash

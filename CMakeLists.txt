@@ -13,7 +13,6 @@
 # limitations under the License.
 
 cmake_minimum_required (VERSION 3.2)
-project (cpu_check VERSION 20181130 LANGUAGES C CXX)
 
 # Options
 # Use clang/llvm by default.
@@ -24,6 +23,20 @@ option(BUILD_STATIC "build targets semi-statically linked" ON)
 if (NOT CMAKE_BUILD_TYPE)
 	set(CMAKE_BUILD_TYPE Release)
 endif(NOT CMAKE_BUILD_TYPE)
+
+if (USE_CLANG)
+        set(CMAKE_C_COMPILER clang)
+        set(CMAKE_CXX_COMPILER clang++)
+        set(CC clang)
+        set(CXX clang++)
+endif(USE_CLANG)
+
+if (BUILD_STATIC)
+        set(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
+	set(CMAKE_EXE_LINKER_FLAGS "-static-libstdc++ -static-libgcc")
+endif(BUILD_STATIC)
+
+project (cpu_check VERSION 20181130 LANGUAGES C CXX)
 
 
 # Begin Google local change
@@ -55,13 +68,6 @@ configure_file (
 	"${PROJECT_BINARY_DIR}/config.h"
 )
 include_directories("${PROJECT_BINARY_DIR}")
-
-if (USE_CLANG)
-	set(CMAKE_C_COMPILER clang)
-	set(CMAKE_CXX_COMPILER clang++)
-	set(CC clang)
-	set(CXX clang++)
-endif(USE_CLANG)
 
 set(CMAKE_C_FLAGS_DEBUG "-g -Wall -O0")
 set(CMAKE_CXX_FLAGS_DEBUG "-g -Wall -O0")
@@ -109,10 +115,6 @@ target_link_libraries(cpu_check crc32c farmhash)
 target_link_libraries(cpu_check fvt_controller ${VENDORS_LIBS} utils)
 # End Google local change
 target_link_libraries(crc32c_test crc32c)
-
-if (BUILD_STATIC)
-	set(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
-endif(BUILD_STATIC)
 
 # Needs pthreads
 find_package(Threads REQUIRED)
