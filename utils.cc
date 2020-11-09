@@ -18,6 +18,7 @@
 #include <unistd.h>
 
 #include "log.h"
+#include "absl/strings/str_cat.h"
 
 static const std::string host_name = []() {
   char host[256];
@@ -33,6 +34,21 @@ double TimeInSeconds() {
   gettimeofday(&tv, nullptr);
   return ((tv.tv_sec * 1e6) + tv.tv_usec) / 1e6;
 }
+
+std::string HexData(const char* s, uint32_t l) {
+  const char d[16] = {'0', '1', '2', '3', '4', '5', '6', '7',
+                      '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
+  std::string o;
+  o.resize(l << 1);
+  for (uint32_t i = 0; i < l; i++) {
+    uint8_t b = s[i];
+    o[(i << 1)] = d[(b >> 4) & 0xf];
+    o[(i << 1) + 1] = d[b & 0xf];
+  }
+  return o;
+}
+
+std::string HexStr(const std::string& s) { return HexData(s.data(), s.size()); }
 
 std::string Json(const std::string& field, int v) {
   return "\"" + field + "\": " + std::to_string(v);
@@ -50,12 +66,12 @@ std::string JsonBool(const std::string& field, bool v) {
   return "\"" + field + "\": " + (v ? "true" : "false");
 }
 
-std::string Json(const std::string& field, const std::string& v) {
-  return "\"" + field + "\": \"" + v + "\"";
+std::string Json(const std::string& field, absl::string_view v) {
+  return absl::StrCat("\"", field, "\": \"", v, "\"");
 }
 
-std::string JsonRecord(const std::string& name, const std::string& v) {
-  return "\"" + name + "\": { " + v + " }";
+std::string JsonRecord(const std::string& name, absl::string_view v) {
+  return absl::StrCat("\"", name, "\": { ", v, " }");
 }
 
 // Emits null field.

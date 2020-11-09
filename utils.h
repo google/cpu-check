@@ -17,15 +17,19 @@
 
 #include <string>
 
+#include "absl/strings/string_view.h"
 
 double TimeInSeconds();
+
+std::string HexData(const char* s, uint32_t l);
+std::string HexStr(const std::string& s);
 
 std::string Json(const std::string& field, int v);
 std::string Json(const std::string& field, uint64_t v);
 std::string Json(const std::string& field, double v);
 std::string JsonBool(const std::string& field, bool v);
-std::string Json(const std::string& field, const std::string& v);
-std::string JsonRecord(const std::string& name, const std::string& v);
+std::string Json(const std::string& field, absl::string_view v);
+std::string JsonRecord(const std::string& name, absl::string_view v);
 
 // Emits null field.
 std::string JsonNull(const std::string& field);
