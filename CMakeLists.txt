@@ -26,28 +26,6 @@ if (NOT CMAKE_BUILD_TYPE)
 endif(NOT CMAKE_BUILD_TYPE)
 
 
-# Begin Google local change
-
-# We use an in tree copy of boringSSL by default.
-option(USE_BORINGSSL "build with boringSSL" OFF)
-
-option(IN_GOOGLE3 "building in google3" OFF)
-
-# The vendors subdirectories may not be present.
-find_path(
-  VENDORS_AMD_PATH
-  NAMES amd.cc
-  PATHS ${CMAKE_CURRENT_SOURCE_DIR}/vendors/amd
-  NO_DEFAULT_PATH
-)
-
-find_path(
-  VENDORS_INTEL_PATH
-  NAMES intel.cc
-  PATHS ${CMAKE_CURRENT_SOURCE_DIR}/vendors/intel
-  NO_DEFAULT_PATH
-)
-# End Google local change
 
 # Config header
 configure_file (
@@ -78,24 +56,20 @@ set(CMAKE_CXX_EXTENSIONS OFF)	# we want c++17 not gnu++17
 add_executable(cpu_check cpu_check.cc)
 add_executable(crc32c_test crc32c_test.cc)
 
+# Third party library - available as git submodule
 add_library(farmhash third_party/farmhash/src/farmhash.cc)
+
+add_library(avx avx.cc)
+add_library(compressor compressor.cc)
 add_library(crc32c crc32c.c)
+add_library(crypto crypto.cc)
 add_library(fvt_controller fvt_controller.cc)
+add_library(hasher hasher.cc)
+add_library(malign_buffer malign_buffer.cc)
+add_library(pattern_generator pattern_generator.cc)
+add_library(silkscreen silkscreen.cc)
 add_library(utils utils.cc)
 
-# Begin Google local change
-if (VENDORS_AMD_PATH)
-  add_library(amd ${VENDORS_AMD_PATH}/amd.cc)
-  add_library(hsmp ${VENDORS_AMD_PATH}/hsmp.cc)
-  target_link_libraries(amd hsmp pci)
-  set(VENDORS_LIBS ${VENDORS_LIBS} amd)
-endif(VENDORS_AMD_PATH)
-
-if (VENDORS_INTEL_PATH)
-  add_library(intel ${VENDORS_INTEL_PATH}/intel.cc)
-  set(VENDORS_LIBS ${VENDORS_LIBS} intel)
-endif(VENDORS_INTEL_PATH)
-# End Google local change
 
 include(CheckCXXCompilerFlag)
 check_cxx_compiler_flag("-march=sandybridge" ARCH_SANDYBRIDGE)
@@ -104,15 +78,19 @@ if(ARCH_SANDYBRIDGE)
 	target_compile_options(crc32c PUBLIC -march=sandybridge)
 endif(ARCH_SANDYBRIDGE)
 
-target_link_libraries(cpu_check crc32c farmhash)
-# Begin Google local change
-target_link_libraries(cpu_check fvt_controller ${VENDORS_LIBS} utils)
-# End Google local change
-target_link_libraries(crc32c_test crc32c)
-
 if (BUILD_STATIC)
 	set(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
 endif(BUILD_STATIC)
+
+# Needs abseil
+find_package(absl REQUIRED)
+target_link_libraries(compressor absl::status absl::strings)
+target_link_libraries(crypto absl::status absl::strings)
+target_link_libraries(fvt_controller absl::strings)
+target_link_libraries(malign_buffer absl::strings)
+target_link_libraries(silkscreen absl::status absl::strings)
+target_link_libraries(utils absl::strings)
+target_link_libraries(cpu_check absl::failure_signal_handler absl::statusor absl::strings absl::symbolize)
 
 # Needs pthreads
 find_package(Threads REQUIRED)
@@ -125,22 +103,17 @@ if(ZLIB_INCLUDE_DIRS)
 endif(ZLIB_INCLUDE_DIRS)
 if(ZLIB_LIBRARIES)
 	target_link_libraries(cpu_check ${ZLIB_LIBRARIES})
+  target_link_libraries(compressor ${ZLIB_LIBRARIES})
+  target_link_libraries(hasher ${ZLIB_LIBRARIES})
 endif(ZLIB_LIBRARIES)
 
-# Begin Google local change
-if(USE_BORINGSSL)
-  set(BORINGSSL_PATH ${CMAKE_CURRENT_SOURCE_DIR}/boringssl)
-  add_subdirectory(${BORINGSSL_PATH})
-  set(BORINGSSL_INCLUDE_DIRS ${BORINGSSL_PATH}/include)
-  include_directories("${BORINGSSL_PATH}/include")
-  target_link_libraries(cpu_check ssl crypto)
-else(USE_BORINGSSL)
-# End Google local change
 
 # Needs OpenSSL
 find_package (OpenSSL REQUIRED)
 include_directories(${OPENSSL_INCLUDE_DIRS})
 target_link_libraries(cpu_check ${OPENSSL_LIBRARIES})
+target_link_libraries(crypto ${OPENSSL_LIBRARIES})
+target_link_libraries(hasher ${OPENSSL_LIBRARIES})
 
 # Static linking of OpenSSL may require -ldl, link it if found.
 find_library (dl dl)
@@ -148,8 +121,18 @@ if(dl)
 	target_link_libraries(cpu_check dl)
 endif(dl)
 
-# Begin Google local change
-endif(USE_BORINGSSL)
-# End Google local change
+
+
+# link malign_buffer first as it has a lot of dependencies.
+target_link_libraries(malign_buffer utils)
+
+target_link_libraries(crc32c_test crc32c)
+target_link_libraries(compressor malign_buffer)
+target_link_libraries(crypto malign_buffer)
+target_link_libraries(hasher crc32c farmhash malign_buffer utils)
+target_link_libraries(pattern_generator malign_buffer)
+target_link_libraries(silkscreen utils)
+
+target_link_libraries(cpu_check avx compressor crc32c crypto fvt_controller hasher malign_buffer pattern_generator silkscreen utils)
 
 install (TARGETS cpu_check DESTINATION bin)

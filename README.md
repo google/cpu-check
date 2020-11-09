@@ -22,7 +22,11 @@ Designed to run under Unix/Linux OS.
 
 * cmake: https://cmake.org/
 * zlib
-* OpenSSL/BoringSSL
+* OpenSSL
+* Abseil-cpp: https://github.com/abseil/abseil-cpp
+
+Note that Abseil must be built with the C++17 standard and include the
+StatusOr package (release 2020_09_23 or later).
 
 ## Building
 
