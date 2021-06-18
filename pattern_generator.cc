@@ -194,13 +194,15 @@ FloatingPointResults FillBufferGrilledCheese::Generate(
 }
 
 PatternGenerators::PatternGenerators() : words_(ReadDict()) {
-  if (words_.empty()) {
-    LOG(ERROR) << "No word list found.";
-    exit(1);
-  }
   generators_.emplace_back(new FillBufferSystematic());
   generators_.emplace_back(new FillBufferRandom());
-  generators_.emplace_back(new FillBufferText(words_));
+
+  if (!words_.empty()) {
+    generators_.emplace_back(new FillBufferText(words_));
+  } else {
+    LOG(WARN) << "No word list found, skipping Text patterns";
+  }
+
   generators_.emplace_back(new FillBufferGrilledCheese());
 }
 
