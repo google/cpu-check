@@ -15,7 +15,11 @@
 #include "config.h"
 #include "fvt_controller.h"
 
+#if defined(__APPLE__)
+#include <sys/errno.h>
+#else
 #include <error.h>
+#endif
 #include <fcntl.h>
 #include <math.h>
 #include <stdint.h>
