@@ -28,8 +28,8 @@ class MalignBuffer {
  public:
   struct PunchedHole {
     std::string ToString() const;
-    size_t start = 0;
-    size_t length = 0;
+    uint64_t start = 0;
+    uint64_t length = 0;
     unsigned char v = 0x53;
   };
 

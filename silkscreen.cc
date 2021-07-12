@@ -72,8 +72,8 @@ absl::Status Silkscreen::CheckMySlots(int tid, uint64_t round) const {
     const char v = *data(k);
     if (v == expected) continue;
     error_count++;
-    last_error = absl::StrCat(Json("position", k), ", ", Json("is", v), ", ",
-                              Json("expected", expected));
+    last_error = absl::StrCat(Json("position", static_cast<uint64_t>(k)), ", ",
+                              Json("is", v), ", ", Json("expected", expected));
   }
   if (slot_count(tid) != slots_read) {
     last_error = absl::StrCat(Json("read", slots_read), ", ",

@@ -102,7 +102,7 @@ std::string Avx::Avx256(int rounds) {
     x[2] = _mm256_mul_pd(minus_four, a[2]);
     x[3] = _mm256_mul_pd(minus_four, a[3]);
   }
-  for (int k = 1; k < 4; k++) {
+  for (int k = 0; k < 4; k++) {
     for (int i = 0; i < 4; i++) {
       if (gross_x[k][i] != gross_x[k][0]) {
         return "avx256 pd";
@@ -140,7 +140,7 @@ std::string Avx::Avx256FMA(int rounds) {
     x[2] = _mm256_mul_pd(minus_four, a[2]);
     x[3] = _mm256_mul_pd(minus_four, a[3]);
   }
-  for (int k = 1; k < 4; k++) {
+  for (int k = 0; k < 4; k++) {
     for (int i = 0; i < 4; i++) {
       if (gross_x[k][i] != gross_x[k][0]) {
         return "avx256 pd";
@@ -182,7 +182,7 @@ std::string Avx::Avx512(int rounds) {
     x[3] = _mm512_mul_pd(minus_four, a[3]);
   }
 
-  for (int k = 1; k < 4; k++) {
+  for (int k = 0; k < 4; k++) {
     for (int i = 0; i < 7; i++) {
       if (gross_x[k][i] != gross_x[k][0]) {
         return "avx512 pd";

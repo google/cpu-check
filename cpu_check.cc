@@ -444,8 +444,9 @@ Worker::Choices Worker::MakeChoices(BufferSet *b) {
       Json("hash", c.hasher->Name()), ", ",
       Json("copy", MalignBuffer::ToString(c.copy_method)), ", ",
       Json("memset", c.use_repstos ? "rep;sto" : "memset"), ", ",
-      JsonBool("madvise", c.madvise), ", ", Json("size", c.buf_size), ", ",
-      Json("pid", pid_), ", ", Json("round", round_), ", ", c.hole.ToString());
+      JsonBool("madvise", c.madvise), ", ",
+      Json("size", static_cast<uint64_t>(c.buf_size)), ", ", Json("pid", pid_),
+      ", ", Json("round", round_), ", ", c.hole.ToString());
 
   return c;
 }

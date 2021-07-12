@@ -235,8 +235,8 @@ std::string MalignBuffer::Syndrome(const MalignBuffer &that) const {
 std::string MalignBuffer::CorruptionSyndrome(const MalignBuffer &that) const {
   std::stringstream s;
   if (size() != that.size()) {
-    s << Json("unequalSizeThis", size()) << ", "
-      << Json("unequalSizeThat", that.size());
+    s << Json("unequalSizeThis", static_cast<uint64_t>(size())) << ", "
+      << Json("unequalSizeThat", static_cast<uint64_t>(that.size()));
     return s.str();
   }
   bool failed_memcmp = memcmp(data(), that.data(), that.size());
