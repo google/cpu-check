@@ -715,8 +715,8 @@ void Worker::Run() {
 
     LOG_EVERY_N_SECS(INFO, 30) << Jstat(
         Json("elapsed_s", static_cast<uint64_t>(TimeInSeconds() - t0)) + ", " +
-        Json("failures", errorCount.load()) + ", " +
-        Json("successes", successCount.load()) + ", " + Writer() +
+        Json("failures", static_cast<double>(errorCount.load())) + ", " +
+        Json("successes", static_cast<double>(successCount.load())) + ", " + Writer() +
         (fvt_controller_ != nullptr
              ? ", " + Json("meanFreq", fvt_controller_->GetMeanFreqMhz()) +
                    ", " + Json("maxFreq", fvt_controller_->max_mHz())
