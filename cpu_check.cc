@@ -444,8 +444,9 @@ Worker::Choices Worker::MakeChoices(BufferSet *b) {
       Json("hash", c.hasher->Name()), ", ",
       Json("copy", MalignBuffer::ToString(c.copy_method)), ", ",
       Json("memset", c.use_repstos ? "rep;sto" : "memset"), ", ",
-      JsonBool("madvise", c.madvise), ", ", Json("size", c.buf_size), ", ",
-      Json("pid", pid_), ", ", Json("round", round_), ", ", c.hole.ToString());
+      JsonBool("madvise", c.madvise), ", ",
+      Json("size", static_cast<uint64_t>(c.buf_size)), ", ", Json("pid", pid_),
+      ", ", Json("round", round_), ", ", c.hole.ToString());
 
   return c;
 }
@@ -714,8 +715,8 @@ void Worker::Run() {
 
     LOG_EVERY_N_SECS(INFO, 30) << Jstat(
         Json("elapsed_s", static_cast<uint64_t>(TimeInSeconds() - t0)) + ", " +
-        Json("failures", errorCount.load()) + ", " +
-        Json("successes", successCount.load()) + ", " + Writer() +
+        Json("failures", static_cast<uint64_t>(errorCount.load())) + ", " +
+        Json("successes", static_cast<uint64_t>(successCount.load())) + ", " + Writer() +
         (fvt_controller_ != nullptr
              ? ", " + Json("meanFreq", fvt_controller_->GetMeanFreqMhz()) +
                    ", " + Json("maxFreq", fvt_controller_->max_mHz())

@@ -30,6 +30,10 @@
 #include "log.h"
 #include "utils.h"
 
+#if defined(__APPLE__)
+#include <sys/sysctl.h>
+#endif
+
 #undef HAS_FEATURE_MEMORY_SANITIZER
 #if defined(__has_feature)
 #if __has_feature(memory_sanitizer)
@@ -114,6 +118,15 @@ size_t MalignBuffer::RoundUpToPageSize(size_t k) {
   return ((k + kPageSize - 1) / kPageSize) * kPageSize;
 }
 
+#if defined(__APPLE__)
+size_t CacheLineSize() {
+    size_t lineSize = 0;
+    size_t sizeofLineSize = sizeof(lineSize);
+    sysctlbyname("hw.cachelinesize", &lineSize, &sizeofLineSize, 0, 0);
+    return lineSize;
+}
+#endif
+
 // Helper to make MSAN happy. NOP if memory sanitizer is not enabled.
 void MalignBuffer::InitializeMemoryForSanitizer(char *addr, size_t size) {
 #ifdef HAS_FEATURE_MEMORY_SANITIZER
@@ -127,7 +140,11 @@ void MalignBuffer::InitializeMemoryForSanitizer(char *addr, size_t size) {
 }
 
 const size_t MalignBuffer::kPageSize = sysconf(_SC_PAGESIZE);
-const size_t MalignBuffer::kCacheLineSize = sysconf(_SC_LEVEL1_DCACHE_LINESIZE);
+#if defined(__APPLE__)
+    const size_t MalignBuffer::kCacheLineSize = CacheLineSize();
+#else
+    const size_t MalignBuffer::kCacheLineSize = sysconf(_SC_LEVEL1_DCACHE_LINESIZE);
+#endif
 
 std::string MalignBuffer::ToString(CopyMethod m) {
   switch (m) {
@@ -235,8 +252,8 @@ std::string MalignBuffer::Syndrome(const MalignBuffer &that) const {
 std::string MalignBuffer::CorruptionSyndrome(const MalignBuffer &that) const {
   std::stringstream s;
   if (size() != that.size()) {
-    s << Json("unequalSizeThis", size()) << ", "
-      << Json("unequalSizeThat", that.size());
+    s << Json("unequalSizeThis", static_cast<uint64_t>(size())) << ", "
+      << Json("unequalSizeThat", static_cast<uint64_t>(that.size()));
     return s.str();
   }
   bool failed_memcmp = memcmp(data(), that.data(), that.size());
