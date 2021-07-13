@@ -118,12 +118,14 @@ size_t MalignBuffer::RoundUpToPageSize(size_t k) {
   return ((k + kPageSize - 1) / kPageSize) * kPageSize;
 }
 
+#if defined(__APPLE__)
 size_t CacheLineSize() {
     size_t lineSize = 0;
     size_t sizeofLineSize = sizeof(lineSize);
     sysctlbyname("hw.cachelinesize", &lineSize, &sizeofLineSize, 0, 0);
     return lineSize;
 }
+#endif
 
 // Helper to make MSAN happy. NOP if memory sanitizer is not enabled.
 void MalignBuffer::InitializeMemoryForSanitizer(char *addr, size_t size) {
