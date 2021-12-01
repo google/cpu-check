@@ -69,6 +69,7 @@ add_library(malign_buffer malign_buffer.cc)
 add_library(pattern_generator pattern_generator.cc)
 add_library(silkscreen silkscreen.cc)
 add_library(utils utils.cc)
+add_library(vendors vendors/intel/intel.cc)
 
 
 include(CheckCXXCompilerFlag)
@@ -133,6 +134,6 @@ target_link_libraries(hasher crc32c farmhash malign_buffer utils)
 target_link_libraries(pattern_generator malign_buffer)
 target_link_libraries(silkscreen utils)
 
-target_link_libraries(cpu_check avx compressor crc32c crypto fvt_controller hasher malign_buffer pattern_generator silkscreen utils)
+target_link_libraries(cpu_check avx compressor crc32c crypto fvt_controller hasher malign_buffer pattern_generator silkscreen utils vendors)
 
 install (TARGETS cpu_check DESTINATION bin)
