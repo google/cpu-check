@@ -85,7 +85,7 @@ endif(BUILD_STATIC)
 # Needs abseil
 find_package(absl REQUIRED)
 target_link_libraries(compressor absl::status absl::strings)
-target_link_libraries(crypto absl::status absl::strings)
+target_link_libraries(crypto absl::status absl::strings dl)
 target_link_libraries(fvt_controller absl::strings)
 target_link_libraries(malign_buffer absl::strings)
 target_link_libraries(silkscreen absl::status absl::strings)
